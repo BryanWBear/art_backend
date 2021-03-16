@@ -47,6 +47,9 @@ transform = transforms.Compose([
 def ping():
     return 'server is up'
 
+
+artist_map = {0: 'Edgar Alwin Payne', 1: 'Norman Rockwell', 2: 'Pablo Picasso'}
+
 @app.route('/api/v1/predict/', methods = ['POST'])
 def predict():
     image = request.json['img']
@@ -56,8 +59,9 @@ def predict():
     with torch.no_grad():
         pred = model(image)
     pred = list(torch.softmax(pred.squeeze(), -1).numpy())
-    print(pred)
-    return json.dumps(str(pred))
+    idx_max = np.argmax(pred)
+    print(f"Prediction: {artist_map[idx_max]}, Confidence: {round(pred[idx_max].item(), 2)}")
+    return f"Prediction: {artist_map[idx_max]}, Confidence: {round(pred[idx_max], 2)}"
 
-app.run()
+app.run(host='0.0.0.0')
 
